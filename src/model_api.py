@@ -43,6 +43,11 @@ class ChatGPTOpenAI:
         elif "gpt-4" in model_name:
             self.system_prompt = "You are ChatGPT, a large language model trained by OpenAI, based on the GPT-4 architecture."
 
+        self.cot_prompt = "You need to think step by step with words, solve the problem and get the answer."
+        if "cot" in model_name:
+            self.system_prompt += f"\n{self.cot_prompt}"
+            model_name = model_name.replace("-cot", "")
+
         if "_azure" in model_name:
             # openai.api_key = azure_api_key
             # openai.api_base = azure_endpoint
@@ -286,15 +291,27 @@ class ChatVLLM:
             self.port = 4231
             self.model_name = model_name
 
+        self.cot_prompt = "You need to think step by step with words, solve the problem and get the answer."
+
         if "llama-3" in self.model_name.lower():
             template = [
                 "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n",
-                "You are a helpful assistant.<|eot_id|>\n",  # The system prompt is optional
+                f"You are a helpful assistant.<|eot_id|>\n",  # The system prompt is optional
+                # f"You are a helpful assistant. {self.cot_prompt}<|eot_id|>\n",  # CoT prompt
                 "<|start_header_id|>user<|end_header_id|>\n\n",
                 "{prompt}<|eot_id|>\n",
                 "<|start_header_id|>assistant<|end_header_id|>\n\n",
             ]
+
+            if "cotsys" in model_name:
+                template[1] = f"You are a helpful assistant. {self.cot_prompt}<|eot_id|>\n"
+                self.model_name = self.model_name.replace("-cotsys", "")
+            elif "cotasst" in model_name:
+                template.append("Let's think step by step.\n")
+                self.model_name = self.model_name.replace("-cotasst", "")
+
             self.template = "".join(template)
+
 
     def message2prompt(self, message):
         message_lst = [

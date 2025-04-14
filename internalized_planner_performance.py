@@ -77,7 +77,7 @@ if __name__ == '__main__':
         debug = 'debug_'
     else:
         debug = ''
-    save_file = f'{args.input_data_path}_eval_{debug}{formatted_time}.json'
+    save_file = f'{args.input_data_path}_{args.api_model}_eval_{debug}{formatted_time}.json'
 
     data_dict = {}
     new_data = []
